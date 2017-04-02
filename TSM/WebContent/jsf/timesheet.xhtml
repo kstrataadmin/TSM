@@ -1,0 +1,357 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/timesheetTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:ui="http://java.sun.com/jsf/facelets" 
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+	
+	<ui:define name="script">
+		<h:outputScript name="jquery.js" />
+		<script type="text/javascript">
+			window.CKEDITOR_BASEPATH = '#{request.contextPath}/org.richfaces.resources/javax.faces.resource/org.richfaces.ckeditor/';
+			
+			$(document).ready(function() {
+				$("#waitPanel").css("visibility", "visible");
+				$("#waitPanel").css("display", "none");
+
+				//alert($(element).html());
+				
+				/* $('.descriptionDiv').hover(function() {
+					mouse_is_inside_description = true;
+				}, function() {
+					mouse_is_inside_description = false;
+				});
+				
+				$("body").mousedown(function() {
+					if (!mouse_is_inside_description)
+						$('.descriptionDiv').css('display','none');
+				}); */
+				/* var mouse_is_inside_comments = false;
+				alert(mouse_is_inside_comments);
+				$('.commentsDiv').hover(function() {
+					alert("true " + mouse_is_inside_comments);
+					mouse_is_inside_comments = true;
+				}, function() {
+					alert("false " + mouse_is_inside_comments);
+					mouse_is_inside_comments = false;
+				});
+				$("body").mouseup(function() {
+					if (!mouse_is_inside_comments){
+						$('.commentsDiv').css('display','none');
+					}
+				}); */
+			});
+			function hideDescriptionDiv(){
+				$('.descriptionDiv').css('display','none');
+			}
+			function hideCommentsDiv(){
+				$('.commentsDiv').css('display','none');
+			}
+			function showLoadingIndicator(data) {
+			   	showIndicatorRegion(data, "waitPanel");
+			   	//alert(data.status);
+			}
+			function showIndicatorRegion(data, regionId) {
+			  if (data.status == "begin") {
+					$("#waitPanel").css("display", "block");
+			  } else if (data.status == "success") {
+					rendertimesheetTableoutputPanel();
+					/*var elements = document.getElementsByTagName('iframe');
+			alert(elements.length);
+					for(var i=0; i&lt;elements.length;i++){
+						var iframeBody = $(elements[i]).contents().find("body");
+						var paragraphs = $(iframeBody).find('p');
+						
+			//alert(paragraphs.length);
+						var innerHTML = '';
+						for(var j=0; j&lt;paragraphs.length;j++){
+			//alert($(paragraphs[j]).html());
+							var imageElements = $(paragraphs[j]).find('img');
+							if(imageElements.length &gt; 0){
+			//alert('present');
+							}else{
+								innerHTML = innerHTML + $(paragraphs[j]).html();
+							}
+						}
+			//alert(innerHTML);
+						iframeBody.innerHTML = innerHTML;
+					}*/
+					$("#waitPanel").css("display", "none");
+			  }
+			}
+			function confirmAllTasks(){
+				if(confirm("Do you want to save all tasks ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function submitPeriod(){
+				if(confirm("You will not be able to add/edit task after submit, Do you want to proceed ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function unSubmitPeriod() {
+				if(confirm("Do you want to unsubmit the period ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function editAllTasks(){
+				if(confirm("Do you want to edit all tasks ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function deleteTask(){
+				if(confirm("Do you want to delete task ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+		</script>
+	</ui:define>
+	<ui:define name="content">
+		<br />
+		<h:form id="timesheetFormID">
+		<a4j:jsFunction name="rendertimesheetTableoutputPanel" render="timesheetTableoutputPanel" ></a4j:jsFunction>
+		<h:panelGroup id="timesheetTableoutputPanel" >
+		<a4j:outputPanel>
+			<table style="width:1250px;">
+				<tr style="border:none;">
+					<td style="text-align: justify;font-weight:bold;">Employee Name</td>
+					<td style="text-align: justify;"><h:outputText style="" value="#{timesheetBean.employee.empFirstName} #{timesheetBean.employee.empLastName}"></h:outputText></td>
+					<td></td>
+				</tr>
+				<tr style="border: none;">
+					<td style="text-align: justify;font-weight:bold;">Employee ID</td>
+					<td style="text-align: justify;"><h:outputText style="" value="#{timesheetBean.employee.empId}"></h:outputText></td>
+					<td></td>
+				</tr>
+				<tr style="border: none;">
+					<td style="text-align: justify;font-weight:bold;">Employee Designation</td>
+					<td style="text-align: justify;"><h:outputText style="" value="#{timesheetBean.employee.empDesignation}"></h:outputText></td>
+					<td></td>
+				</tr>
+				<tr style="border: none;">
+					<td style="text-align: justify;font-weight:bold;">Period</td>
+					<td style="text-align: justify;">
+						<h:selectOneMenu id="selectperiod" value="#{timesheetBean.periodName}" style="width:250px;" >
+							<f:selectItems value="#{timesheetBean.periodNames}" />
+							<f:ajax event="change" listener="#{timesheetBean.fetchTimesheets}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:selectOneMenu>
+					</td>
+					<td></td>
+				</tr>
+				<tr style="border: none;">
+					<td  colspan="3"><br/>
+					</td>
+				</tr>
+				<tr style="text-align: right;border: none;">
+					<td></td>
+					<td></td>
+					<td  style="font-weight: bold;text-align: right;">
+						<h:commandLink id="addtask" rendered="#{timesheetBean.addTaskStatus}">
+							<h:graphicImage value="../images/addtask.png" />
+							<f:ajax event="click" listener="#{timesheetBean.addTask}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink id="editall"  style="margin-left:10px;" rendered="#{timesheetBean.addTaskStatus}" 
+							onclick="return editAllTasks();" action="#{timesheetBean.editAllTask}" >
+							<h:graphicImage value="../images/editall.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink id="confirm"  style="margin-left:10px;" rendered="#{timesheetBean.addTaskStatus}" 
+							onclick="return confirmAllTasks();" action="#{timesheetBean.confirmAllTask('RT')}" >
+							<h:graphicImage value="../images/confirmAll.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink id="submit"  style="margin-left:10px;" rendered="#{!timesheetBean.submitStatus}" 
+							onclick="return submitPeriod();" action="#{timesheetBean.submitAllTaskInPeriod}" >
+							<h:graphicImage value="../images/submit.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator"/>
+						</h:commandLink>
+
+						<h:commandLink style="margin-left:10px;" action="#{timesheetBean.generateReportForSingleEmployee}" 
+							rendered="#{!timesheetBean.adminMode}">
+							<h:graphicImage value="../images/report.png" />
+						</h:commandLink>
+						
+						<h:commandLink style="margin-left:10px;" rendered="#{timesheetBean.adminMode and timesheetBean.submitStatus}" >
+							<f:ajax event="click" listener="#{timesheetBean.approvePeriod}" execute="@form" onevent="showLoadingIndicator"/>
+								<h:graphicImage value="../images/approve.png" title="Approve Period" />
+						</h:commandLink>
+						<h:commandLink style="margin-left:10px;" rendered="#{timesheetBean.adminMode and timesheetBean.submitStatus}" >
+							<f:ajax event="click" listener="#{timesheetBean.denyPeriod}" execute="@form" onevent="showLoadingIndicator"/>
+								<h:graphicImage value="../images/deny.png" title="Deny Period" />
+						</h:commandLink>
+					</td>
+				</tr>
+			</table>
+			
+			<br/><br/><br/>
+			<h:dataTable value="#{timesheetBean.timesheetrows}" var="timesheetRow" id="timesheetTable"
+				rendered="#{not empty timesheetBean.timesheetrows}"
+				style="width:1250px;cellpadding:5px;border:1px solid #CCCCCC;" headerClass="timesheetTableHeader"
+				columnClasses="timesheetProj,timesheetComm,timesheetDesc,timesheetSTime,timesheetETime,timesheetTotal,timesheetCS,timesheetAS,timesheetOP" >
+				<h:column style="text-align: center;" width="40px">
+					 <f:facet name="header" >
+					 	<div style="text-align: center;">Project</div>
+					</f:facet>
+					<h:selectOneMenu  disabled="#{!((timesheetBean.addTaskStatus) and (timesheetRow.editMode)) or !timesheetRow.projectclientEditMode}" 
+							id="selectproject" 
+							value="#{timesheetRow.projectId}" style="width:200px;">
+						<f:selectItems value="#{timesheetBean.projectNames}" />
+						<f:ajax event="change" listener="#{timesheetBean.updateTotal(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+					</h:selectOneMenu>
+				</h:column>
+				<h:column style="text-align: center;" width="60px">
+					 <f:facet name="header" width="60px">
+					 	<div style="text-align: center;">Comments</div>
+					</f:facet>
+					<a4j:outputPanel id="commentsPanel" >
+						<h:commandLink id="commentsLink" value="Comments" rendered="#{timesheetRow.editMode}" title="#{timesheetRow.comments}">
+							<f:ajax event="click" listener="#{timesheetBean.showComments(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:outputText value="#{timesheetRow.shortComments}" rendered="#{!timesheetRow.editMode}" title="#{timesheetRow.comments}"/>
+						<div id="commentsDiv" class="commentsDiv" style="display: #{timesheetRow.commentsDisplay};">
+							<a id="closeCommentsLink" onclick="hideCommentsDiv();" style="cursor:pointer;position:absolute;margin-left:480px;">
+								<img src="../images/close.png" />
+							</a>
+							<h:inputTextarea style="min-height:100px;min-width:500px;max-width:500px; " disabled="#{!((timesheetBean.addTaskStatus) and (timesheetRow.editMode))}" value="#{timesheetRow.comments}">
+							</h:inputTextarea>
+						</div>		
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: left !important;">
+					<f:facet name="header">
+					 	<div style="text-align: center;">Description</div>
+					</f:facet>
+					<a4j:outputPanel id="descPanel" >
+						<h:commandLink id="descriptionLink" value="Description" rendered="#{timesheetRow.editMode}" title="#{timesheetRow.taskDesc}">
+							<f:ajax event="click" listener="#{timesheetBean.showDescription(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:outputText value="#{timesheetRow.shortDesc}" rendered="#{!timesheetRow.editMode}" title="#{timesheetRow.taskDesc}"/>
+						<div id="descriptionDiv" class="descriptionDiv" style="display: #{timesheetRow.display};">
+							<a id="closeLink" onclick="hideDescriptionDiv();">
+								<img src="../images/close.png" />
+							</a>
+							<h:inputTextarea style="min-height:200px;min-width:700px;max-width:700px; " disabled="#{!((timesheetBean.addTaskStatus) and (timesheetRow.editMode))}" value="#{timesheetRow.taskDesc}">
+							</h:inputTextarea>
+						</div>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Start Time</div>
+					</f:facet>
+					<a4j:outputPanel id="fromTaskdatePanel" >
+							<rich:calendar
+								disabled="#{!((timesheetBean.addTaskStatus) and (timesheetRow.editMode))}"
+								value="#{timesheetRow.startTime}" id="fromTaskdate"
+								datePattern="dd-MMM-yyyy HH:mm" dataModel="#{timesheetBean.calendarModel}"
+								defaultTime="#{timesheetRow.taskDate}" mode="ajax"
+								enableManualInput="false" showFooter="true" >
+								<f:ajax event="change" listener="#{timesheetBean.changeTaskDate(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+							</rich:calendar>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">End Time</div>
+					</f:facet>
+					<a4j:outputPanel id="toTaskdatePanel" >
+						<rich:calendar disabled="#{!((timesheetBean.addTaskStatus) and (timesheetRow.editMode))}"
+							value="#{timesheetRow.endTime}" id="toTaskdate"
+							datePattern="dd-MMM-yyyy HH:mm"  dataModel="#{timesheetBean.calendarModel}"
+							defaultTime="#{timesheetRow.taskDate}" enableManualInput="false"
+							mode="ajax"	showFooter="true" >
+							<f:ajax event="change" listener="#{timesheetBean.updateTotal(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</rich:calendar>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" width="30px">
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Total(hours)</div>
+					</f:facet>
+					<a4j:outputPanel id="totalPanel" >
+						<h:inputText value="#{timesheetRow.total}" style="width:35px;text-align:right;" disabled="true"></h:inputText>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Status</div>
+					</f:facet>
+					<a4j:outputPanel>
+						<h:graphicImage value="#{timesheetRow.confirmStatus eq 'Confirmed' ? '../images/confirmed.png' : '../images/notconfirm.png'}" title="#{timesheetRow.confirmStatus}" />
+						<a4j:outputPanel rendered="#{timesheetRow.newTask}">
+							<br/><h:outputText value="New Task" style="font-weight:bold;color:green;"/>
+						</a4j:outputPanel>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Mngr Status</div>
+					</f:facet>
+					<a4j:outputPanel>
+						<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="#{timesheetRow.approveStatus}" rendered="#{!timesheetBean.adminMode}"/>
+						<h:commandLink rendered="#{timesheetRow.showApproveLink}" >
+							<f:ajax event="click" listener="#{timesheetBean.approveTask(timesheetRow)}" execute="@form" onevent="showLoadingIndicator"/>
+								<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" 
+									title="Click to Approve" />
+						</h:commandLink>
+						<h:commandLink rendered="#{timesheetRow.showDenyLink}" >
+							<f:ajax event="click" listener="#{timesheetBean.denyTask(timesheetRow)}" execute="@form" onevent="showLoadingIndicator"/>
+								<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" 
+									title="Click to Deny" />
+						</h:commandLink>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align:center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Operations</div>
+					</f:facet>
+					<a4j:outputPanel id="operationsPanel" >
+						<h:commandLink title="Copy" rendered="#{(timesheetBean.addTaskStatus) and (timesheetRow.newTask)}">
+							<h:graphicImage value="../images/copy.png" />
+							<f:ajax event="click" listener="#{timesheetBean.duplicateTask(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink title="Delete" rendered="#{(timesheetBean.addTaskStatus) and (timesheetRow.deleteStatus)}" onclick="return deleteTask();"
+							action="#{timesheetBean.deleteTask(timesheetRow)}" >
+							<h:graphicImage value="../images/delete.png" />
+							<f:ajax execute="@form" onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<a4j:outputPanel rendered="#{timesheetRow.errorsPresent}">
+							<br/>
+							<h:outputText value="#{timesheetRow.errorMessage}" style="color:red;font-size:10px;"></h:outputText>
+						</a4j:outputPanel>
+					</a4j:outputPanel>
+				</h:column>
+			</h:dataTable>
+			
+			
+			</a4j:outputPanel>
+			</h:panelGroup>
+		</h:form>
+
+		<rich:popupPanel modal="true" id="waitPanel" style="text-align:center;">
+			<h:graphicImage value="../images/ajax-loader.gif" />
+		</rich:popupPanel>
+	</ui:define>
+</ui:composition>

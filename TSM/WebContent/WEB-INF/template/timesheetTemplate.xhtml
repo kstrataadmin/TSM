@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich" >
+<h:head>
+	<title>Kstrata IT Solutions</title>
+	<link rel="stylesheet" href="/TSM/css/style.css" type="text/css"></link>
+	<link rel="stylesheet" href="/TSM/css/timesheet.css" />
+	<ui:insert name="script"></ui:insert>
+</h:head>
+<f:view >
+<h:body>
+	<header>
+	<h:form id="timesheetTemplateFormID">
+		<div class="systemnav">
+			Welcome<h:outputText value="#{loginBean.name}" style="margin-left:10px;"/>
+			
+			<a4j:outputPanel>
+			<h:outputText value="|" style="margin-left:10px;margin-right:10px;"/>
+			
+			<h:commandLink action="#{loginBean.logoutAndChangePassword}" value="Change Password" style="color:#FFFFFF !important;"></h:commandLink>
+			
+			</a4j:outputPanel>
+			<h:outputText value="|" style="margin-left:10px;margin-right:10px;"/>
+			
+			<h:commandLink action="#{loginBean.logout}" value="Logout" style="color:#FFFFFF !important;"></h:commandLink>
+		</div>
+		<div class="mainnav">
+			<div class="logo"></div>
+			<div class="menu">
+			<table><tr>
+				<td><ul class="nav">
+					<li class="#{timesheetTemplateBean.timesheetStatus}">
+						<h:commandLink action="#{timesheetTemplateBean.navigateToTimesheet}" value="Timesheet"
+							style="text-decoration:none;" /></li>
+					<li class="#{timesheetTemplateBean.overTimeStatus}">
+						<h:commandLink action="#{timesheetTemplateBean.navigateToOverTime}" value="Overtime"
+							style="text-decoration:none;" /></li>
+					<li class="">
+						<h:commandLink action="#{timesheetTemplateBean.toAdministration}" value="Administration"
+							rendered="#{commonBean.adminMode}" style="text-decoration:none;" /></li>
+				</ul></td><td>
+				<h1 style="color: #575757;font-size: 23px;font-weight: bold;padding-left: 130px;padding-top: 80px;">Timesheet Management</h1></td>
+			</tr></table>
+			</div>
+		</div>
+	</h:form>
+	<div class="shadow"></div>
+	</header>
+	<div id="container">
+		<div id="main">
+			<ui:insert name="content" />
+		</div>
+   	</div>
+</h:body>
+</f:view>
+</html>

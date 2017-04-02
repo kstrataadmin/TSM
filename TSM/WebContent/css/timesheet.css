@@ -1,0 +1,117 @@
+td.disabled-class{
+ color: #555555 !important;
+}
+.cke_skin_richfaces .cke_resizer{
+	display: none !important;	
+}
+#closeLink{
+	cursor:pointer;
+	position:absolute;
+	margin-left:680px;
+	margin-left:680px\9;
+}
+:root #closeLink{ margin-left:680px \0/IE9; }  /* IE9 */
+
+.cke_toolbox_collapser{
+	margin-right: 30px !important;
+}
+.commentsPanel{
+	text-align:center;
+}
+#waitPanel .rf-pp-cntr, #waitPanel .rf-pp-cnt-scrlr {
+	height: 40px !important;
+    left: 650px !important;
+    position: fixed !important;
+    text-align: center !important;
+    top: 300px !important;
+    width: 40px !important;
+}
+#waitPanel .rf-pp-shdw{
+	height: 40px !important;
+    left: 650px !important;
+    position: fixed !important;
+    text-align: center !important;
+    top: 300px !important;
+    width: 40px !important;
+}
+
+#timesheetFormID .rf-cal-inp{
+	width:130px !important;
+}
+.timesheetTableHeader {
+	border:1px solid #000000;	
+}
+.timesheetProj{
+	text-align: left !important;
+	width:200px !important;
+}
+.timesheetComm{text-align: left !important;width:150px !important;}
+.timesheetDesc{text-align: left !important;width:200px !important;}
+.timesheetTD{width:60px !important;}
+.timesheetSTime{width:100px !important;text-align: center !important;}
+.timesheetETime{width:100px !important;text-align: center !important;}
+.timesheetTotal{width:80px !important;text-align: center !important;}
+.timesheetCS{width:100px !important;text-align: center !important;}
+.timesheetAS{width:100px !important;text-align: center !important;}
+.timesheetOP{width:100px !important;text-align: center !important;}
+
+.timesheetComDescData{
+    
+}
+
+		
+.projectTableHeader{
+	border:1px solid #000000;	
+}
+#projectFormID td{
+	text-align: left;
+	width:200px;
+	vertical-align: middle;
+}
+#projectFormID tr{
+	text-align: left;
+}
+#timesheetFormID td{
+	text-align: center;
+	vertical-align: middle;
+}
+#timesheetFormID tr{
+	border-bottom: 1px solid #CCCCCC;
+}
+span.rf-insp-inc, .rf-insp-dec, .rf-insp-inc-dis, .rf-insp-dec-dis{
+	height:12.5px !important;
+	background-color: #0078AA;
+}
+input.rf-insp-inp {
+	width:20px;
+}
+
+#adminFormID td{
+	text-align: center;
+	vertical-align: middle;
+}
+#adminFormID tr{
+	border-bottom: 1px solid #CCCCCC;
+	height: 25px;
+}
+.rich-modalpanel{
+	width: 400px !important;
+}
+input[type="button"], input[type="submit"], input[type="reset"], input[type="submit"], input[type="button"] {
+    background-color: #0078D0 !important;
+    background-image: none !important;
+    font-weight: bold;
+    border-radius: 6px 6px 6px 6px;
+}
+.descriptionDiv{
+	position: absolute;
+	background-color: white;
+}
+.commentsDiv{
+	position: absolute;
+	background-color: white;
+}
+a {
+    color: #0078D0 !important;
+    text-decoration: underline;
+}

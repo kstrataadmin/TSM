@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/mainTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:c="http://java.sun.com/jsp/jstl/core" 
+	xmlns:ui="http://java.sun.com/jsf/facelets" 
+	xmlns:a4j="http://richfaces.org/a4j" 
+	xmlns:rich="http://richfaces.org/rich" 
+	xmlns:s="http://jboss.com/products/seam/taglib">
+<ui:define name="script">
+    	<script src="../js/checkBox.js" type="text/javascript"/>
+    	<h:outputScript name="jquery.js" />
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#waitPanel").css("visibility", "visible");
+				$("#waitPanel").css("display", "none");
+				$('#regular').attr('checked', true);
+				
+			});
+	    	
+	    	function showLoadingIndicator(data){
+				if (data.status == "begin") {
+					  $("#waitPanel").css("display", "block");
+				  } else if (data.status == "success") {
+					  rendersummaryTableOutputPanel();
+					  $("#waitPanel").css("display", "none");
+				  }
+			}
+
+	    	function showLoadingIndicator1(data){
+				if (data.status == "begin") {
+					  $("#waitPanel").css("display", "block");
+				  } else if (data.status == "success") {
+					  $("#waitPanel").css("display", "none");
+				  }
+			}
+    	</script>
+</ui:define>
+<ui:define name="content">
+    <br/><br/><br/>
+    <h:form id="adminFormID" >
+    	<a4j:jsFunction name="rendersummaryTableOutputPanel" render="summaryFormOutputPanel" ></a4j:jsFunction>
+    	<a4j:jsFunction name="renderAdminForm" action="#{summaryBean.fetchTimesheetsByEmployee(0)}" render="adminFormID"></a4j:jsFunction>
+    	<h:panelGroup id="summaryFormOutputPanel" >
+		<a4j:outputPanel>
+    	<a4j:outputPanel id="searchPanel" >
+    		<table style="width:1100px;">
+				<tr style="border: none;">
+					<td style="text-align: justify;font-weight:bold;">Employee Name</td>
+					<td style="text-align: justify;">
+						<a4j:outputPanel id="employeeNamePanel" >
+							<rich:autocomplete value="#{summaryBean.employeeName}" autocompleteMethod="#{summaryBean.autocomplete}"
+									mode="ajax" minChars="1"
+									var="employee" fetchValue="#{employee.empFirstName} #{employee.empLastName}  -  #{employee.empId}" layout="table"
+									requestDelay="600" nothingLabel="No Employee found">
+					            <rich:column>
+									<h:outputText value="#{employee.empFirstName} #{employee.empLastName} ---- #{employee.empId}" />
+								</rich:column>
+								<f:ajax event="selectitem" execute="@form" onevent="renderAdminForm"/>
+							</rich:autocomplete>
+						</a4j:outputPanel>
+					</td>
+					<td style="text-align: justify;font-weight:bold;">Approve Status</td>
+					<td style="text-align: justify;">
+						<a4j:outputPanel id="approveStatusPanel" >
+							<h:selectOneMenu id="selectApproveStatus" value="#{summaryBean.approveStatus}" style="width:150px;">
+								<f:selectItems value="#{summaryBean.approveStatuses}" />
+								<f:ajax event="change" listener="#{summaryBean.fetchTimesheetsByApproveStatus}" execute="@form"
+										onevent="showLoadingIndicator"  />
+							</h:selectOneMenu>
+						</a4j:outputPanel>
+					</td>
+					<td style="text-align: justify;font-weight:bold;">Period</td>
+					<td style="text-align: justify;">
+						<a4j:outputPanel id="periodPanel" >
+							<h:selectOneMenu id="selectPeriod" value="#{summaryBean.periodName}" style="width:250px;">
+								<f:selectItems value="#{summaryBean.periodNames}" />
+								<f:ajax event="change" listener="#{summaryBean.fetchTimesheetsByPeriod}" onevent="showLoadingIndicator"   execute="@form" />
+							</h:selectOneMenu>
+						</a4j:outputPanel>
+					</td>
+					<td style="text-align: justify; width:80px">
+						<h:commandLink>
+							<h:graphicImage value="../images/clear.png" />
+							<f:ajax event="click" listener="#{summaryBean.reset}" execute="@form" onevent="showLoadingIndicator"/>
+						</h:commandLink>
+					</td>
+					<td style="text-align: justify;">
+						<h:selectOneRadio id="radio" value="#{summaryBean.taskType}" required="true">
+   							<f:selectItem id="regular" itemValue="RT" itemLabel="Regular" />
+   							<f:selectItem id="overtime" itemValue="OT" itemLabel="Overtime" />
+   							<f:ajax execute="@form" listener="#{summaryBean.radioSelection}" render="@form" />
+						</h:selectOneRadio>
+					</td>
+					<td style="text-align: justify;">
+						<h:commandLink style="margin-left:15px;" action="#{summaryBean.sendMailRemainder}" 
+							title="Send Timesheet Reminder">
+							<h:graphicImage value="../images/sendMail.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator1"/>
+						</h:commandLink>
+					</td>
+				</tr>
+			</table>
+		</a4j:outputPanel>
+			<br/><br/><br/>
+		<a4j:outputPanel id="summaryTableOutputPanel" rendered="#{!empty summaryBean.uitimesheetRows}">
+        	<h:dataTable value="#{summaryBean.uitimesheetRows}" var="summaryRow" id="summaryTable"
+					style="width:1250px;cellpadding:5px;border:1px solid #CCCCCC;" headerClass="timesheetTableHeader" >
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Employee ID</div>
+					</f:facet>
+					<h:outputText value="#{summaryRow.timesheet.employeeProject.employee.empId}" />
+				</h:column> 
+				<h:column style="text-align: center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Employee Name</div>
+					</f:facet>
+					<h:outputText value="#{summaryRow.timesheet.employeeProject.employee.empFirstName} #{summaryRow.timesheet.employeeProject.employee.empLastName}" />
+				</h:column>
+				<h:column style="text-align: center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Period</div>
+					</f:facet>
+					<h:commandLink value="#{summaryRow.periodName}" action="#{summaryBean.toTimesheet(summaryRow)}" />
+				</h:column>
+				<h:column style="text-align: center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Status</div>
+					</f:facet>
+					<a4j:outputPanel>
+						<h:commandLink rendered="#{summaryRow.confirmStatus ne 'Confirmed'}">
+							<f:ajax event="click" listener="#{summaryBean.submitPeriod(summaryRow)}" execute="@form" onevent="showLoadingIndicator"/>
+							<h:graphicImage value="../images/notconfirm.png" title="Click to Submit" />
+						</h:commandLink>
+						<h:graphicImage value="../images/confirmed.png" title="Submitted And Approved"
+							rendered="#{summaryRow.confirmStatus eq 'Confirmed' and summaryRow.approveStatus eq 'Approved'}" />
+						<h:commandLink rendered="#{summaryRow.confirmStatus eq 'Confirmed' and summaryRow.approveStatus ne 'Approved'}">
+							<f:ajax event="click" listener="#{summaryBean.unsubmitPeriod(summaryRow)}" execute="@form" onevent="showLoadingIndicator"/>
+							<h:graphicImage value="../images/confirmed.png" title="Click to UnSubmit" />
+						</h:commandLink>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Manager Status</div>
+					</f:facet>
+					<a4j:outputPanel id="approvePanel" >
+						<h:commandLink title="Approve" rendered="#{summaryRow.showApprove}" >
+							<f:ajax event="click" listener="#{summaryBean.approveLine(summaryRow)}" 
+								execute="@form" onevent="showLoadingIndicator"/>
+							<h:graphicImage value="#{summaryRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="Click to Approve" />
+						</h:commandLink>
+						<h:commandLink title="Deny" rendered="#{summaryRow.showDeny}" >
+							<f:ajax event="click" listener="#{summaryBean.denyLine(summaryRow)}" 
+								execute="@form" onevent="showLoadingIndicator"/>
+							<h:graphicImage value="#{summaryRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="Click to Deny" />
+						</h:commandLink>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<a4j:outputPanel>
+						 	<h:selectBooleanCheckbox rendered="#{summaryBean.approveStatus eq 'Not Approved'}" value="#{summaryBean.selectAllForApproval}">
+						 		<f:ajax event="click" listener="#{summaryBean.selectAllForApproval}" execute="@form" onevent="showLoadingIndicator"/>
+						 	</h:selectBooleanCheckbox>
+						 	<h:commandLink title="Approve" rendered="#{summaryBean.approveStatus eq 'Not Approved'}" >
+								<f:ajax event="click" listener="#{summaryBean.approveSelectedRows}" execute="@form" onevent="showLoadingIndicator"/>
+								<h:graphicImage value="../images/notapp.png" title="Click to Approve All" />
+							</h:commandLink>
+						</a4j:outputPanel>
+					</f:facet>
+					<a4j:outputPanel id="approveSelectBox" >
+						<h:selectBooleanCheckbox rendered="#{summaryRow.showApprove}" value="#{summaryRow.selectRowForApproval}">
+					 		<f:ajax event="click" listener="#{summaryBean.selectRowForApproval(summaryRow)}" execute="@form" onevent="showLoadingIndicator"/>
+					 	</h:selectBooleanCheckbox>
+					</a4j:outputPanel>
+				</h:column>
+			</h:dataTable>
+		</a4j:outputPanel>
+		
+		</a4j:outputPanel>
+		</h:panelGroup>
+	</h:form>
+	<rich:popupPanel modal="true" id="waitPanel" style="text-align:center;">
+			<h:graphicImage value="../images/ajax-loader.gif" />
+	</rich:popupPanel>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/mainTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:c="http://java.sun.com/jsp/jstl/core" 
+	xmlns:ui="http://java.sun.com/jsf/facelets" 
+	xmlns:a4j="http://richfaces.org/a4j" 
+	xmlns:rich="http://richfaces.org/rich" 
+	xmlns:s="http://jboss.com/products/seam/taglib">
+<ui:define name="script">
+    	<h:outputScript name="jquery.js" />
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#waitPanel").css("visibility", "visible");
+				$("#waitPanel").css("display", "none");
+			});
+	    	
+	    	function showLoadingIndicator(data){
+				if (data.status == "begin") {
+					  $("#waitPanel").css("display", "block");
+				  } else if (data.status == "success") {
+					  $("#waitPanel").css("display", "none");
+					  renderProjectOutputPanel();
+				  }
+			}
+    	</script>
+	</ui:define>
+<ui:define name="content">
+<br/><br/>
+ 	<h:form id="projectFormID" >
+ 		<a4j:jsFunction name="renderProjectOutputPanel" render="projectFormID" ></a4j:jsFunction>
+        	<h:commandLink id="addnew" style="margin-right:10px;">
+        		<h:graphicImage value="../images/addNewButton.png" />
+        		<f:ajax event="click" listener="#{projectBean.addNewProject}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink> 
+        	<h:commandLink id="edit" rendered="#{projectBean.editStatus}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/editButton.png" />
+        		<f:ajax event="click" listener="#{projectBean.editProject}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="delete" rendered="#{projectBean.editStatus}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/deleteButton.png" />
+        		<f:ajax event="click" listener="#{projectBean.deleteProject}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="save" rendered="#{projectBean.newMode || projectBean.editMode}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/saveButton.png" />
+        		<f:ajax event="click" listener="#{projectBean.saveProject}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="cancel" >
+        		<h:graphicImage value="../images/cancelButton.png" />
+        		<f:ajax event="click" listener="#{projectBean.reset}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<br/><br/><br/>
+        	<table id="projectTable">
+        		<tr>
+        			<td>Project Name</td>
+        			<td>
+        				<a4j:outputPanel id="projectNamePanel" rendered="#{projectBean.normalMode}">
+							<h:selectOneMenu value="#{projectBean.projectID}" style="width:200px;" >
+								<f:selectItems value="#{projectBean.projectNames}" />
+								<f:ajax event="change" listener="#{projectBean.fetchProject}" execute="@form"
+									onevent="showLoadingIndicator"/>
+						</h:selectOneMenu>
+						</a4j:outputPanel>
+						<h:inputText rendered="#{projectBean.newMode || projectBean.editMode}" id="newProjectId" value="#{projectBean.projectName}" style="width:200px;font-size:13px;"/>
+					</td>
+        		</tr>
+        		<tr>
+        			<td>Project Description</td>
+        			<td>
+        				<h:inputText value="#{projectBean.projectDesc}" disabled="#{projectBean.normalMode}" style="width:200px;" />
+        			</td>
+        		</tr>
+        		<tr>
+        			<td>Active</td>
+        			<td><h:selectOneMenu disabled="#{projectBean.normalMode}" value="#{projectBean.active}" style="width:200px;">
+							<f:selectItems value="#{projectBean.projectActiveStates}" />
+						</h:selectOneMenu>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td>Client Name</td>
+        			<td>
+        				<h:selectOneMenu id="selectclient" value="#{projectBean.clientName}" disabled="#{projectBean.normalMode || !projectBean.newMode}"
+										style="width:200px;">
+								<f:selectItems value="#{projectBean.clientNames}" />
+						</h:selectOneMenu>
+        			</td>
+        		</tr>
+        	</table>
+	</h:form>
+	<rich:popupPanel modal="true" id="waitPanel" style="text-align:center;">
+			<h:graphicImage value="../images/ajax-loader.gif" />
+	</rich:popupPanel>
+</ui:define>
+</ui:composition>

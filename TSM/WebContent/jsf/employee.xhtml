@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/mainTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:c="http://java.sun.com/jsp/jstl/core" 
+	xmlns:ui="http://java.sun.com/jsf/facelets" 
+	xmlns:a4j="http://richfaces.org/a4j" 
+	xmlns:rich="http://richfaces.org/rich" 
+	xmlns:s="http://jboss.com/products/seam/taglib">
+	<ui:define name="script">
+    	<h:outputScript name="jquery.js" />
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#waitPanel").css("visibility", "visible");
+				$("#waitPanel").css("display", "none");
+			});
+	    	
+	    	function showLoadingIndicator(data){
+				if (data.status == "begin") {
+					  $("#waitPanel").css("display", "block");
+				  } else if (data.status == "success") {
+					  $("#waitPanel").css("display", "none");
+					  renderemployeeOutputPanel();
+				  }
+			}
+			function showLoadingIndicatorAddingProject(data){
+				if (data.status == "begin") {
+					  $("#waitPanel").css("display", "block");
+				  } else if (data.status == "success") {
+					  $("#waitPanel").css("display", "none");
+					  renderprojectTable();
+				  }
+			}
+    	</script>
+	</ui:define>
+<ui:define name="content">
+<br/><br/>
+	<h:form id="employeeFormID" >
+		<a4j:jsFunction name="renderemployeeOutputPanel" render="employeeFormID" ></a4j:jsFunction>
+		<a4j:jsFunction name="renderprojectTable" render="projectTableoutputPanel" ></a4j:jsFunction>
+		
+        	<h:commandLink id="addnew" render="employeeFormID" style="margin-right:10px;">
+        		<h:graphicImage value="../images/addNewButton.png" />
+        		<f:ajax event="click" listener="#{employeeBean.addNewEmployee}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink> 
+        	<h:commandLink id="edit" rendered="#{employeeBean.editStatus}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/editButton.png" />
+        		<f:ajax event="click" listener="#{employeeBean.editEmployee}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="delete" rendered="#{employeeBean.editStatus}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/deleteButton.png" />
+        		<f:ajax event="click" listener="#{employeeBean.deleteEmployee}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="save"  rendered="#{employeeBean.newMode || employeeBean.editMode}" style="margin-right:10px;">
+        		<h:graphicImage value="../images/saveButton.png" />
+        		<f:ajax event="click" listener="#{employeeBean.saveEmployee}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<h:commandLink id="cancel" rendered="#{!employeeBean.normalMode}" >
+        		<h:graphicImage value="../images/cancelButton.png" />
+        		<f:ajax event="click" listener="#{employeeBean.reset}" execute="@form" onevent="showLoadingIndicator"/>
+        	</h:commandLink>
+        	<br/>
+        	<a4j:outputPanel rendered="#{employeeBean.errorsPresent}">
+        		<h:outputText value="#{employeeBean.errorMessage}" style="color:red;font-size:10px;"></h:outputText>
+        	</a4j:outputPanel>
+        	<br/><br/><br/>
+        <table>
+        <tr>
+        <td>
+        	<table id="employeeTable">
+        		<tr>
+        			<td>Employee ID</td>
+        			<td>
+        				<h:selectOneMenu rendered="#{employeeBean.normalMode}" id="selectEmployee" value="#{employeeBean.empId}" style="width:200px;">
+							<f:selectItems value="#{employeeBean.empIds}" />
+							<f:ajax event="change" listener="#{employeeBean.fetchEmployee}" execute="@form" onevent="showLoadingIndicator" />
+						</h:selectOneMenu>
+						<h:inputText disabled="#{employeeBean.editMode}" rendered="#{employeeBean.newMode || employeeBean.editMode}" id="newEmpId" value="#{employeeBean.employee.empId}" style="width:200px;font-size:13px;"/>
+					</td>
+					<td></td>
+        		</tr>
+        		<tr>
+        			<td>First Name</td>
+        			<td><h:inputText disabled="#{employeeBean.normalMode}" id="firstName" value="#{employeeBean.employee.empFirstName}" style="width:200px;font-size:13px;"/></td>
+        			<td></td>
+        		</tr>
+        		<tr>
+        			<td>Last Name</td>
+        			<td><h:inputText disabled="#{employeeBean.normalMode}" id="lastName" value="#{employeeBean.employee.empLastName}" style="width:200px;font-size:13px;"/></td>
+        			<td></td>
+        		</tr>
+        		<tr>
+        			<td>Designation</td>
+        			<td><h:inputText disabled="#{employeeBean.normalMode}" id="designation" value="#{employeeBean.employee.empDesignation}" style="width:200px;font-size:13px;"/></td>
+        			<td></td>
+        		</tr>
+        		<tr>
+        			<td>Email ID</td>
+        			<td><h:inputText disabled="#{employeeBean.normalMode}" id="emailid" value="#{employeeBean.employee.empEmailid}" style="width:200px;font-size:13px;"/></td>
+        			<td></td>
+        		</tr>
+        		<tr>
+        			<td>Username</td>
+        			<td><h:inputText disabled="#{employeeBean.normalMode}" id="username" value="#{employeeBean.employee.empUsername}" style="width:200px;font-size:13px;"/></td>
+        			<td></td>
+        		</tr>
+        		<tr>
+        			<td>Password Change Flag
+        			</td>
+        			<td style="text-align: right;">
+        				<h:selectBooleanCheckbox disabled="#{employeeBean.normalMode}" id="passwordChangeFlag" 
+        					value="#{employeeBean.employee.passwordChangeFlagBoolean}" ></h:selectBooleanCheckbox>
+        			</td>
+        			<td></td>
+        		</tr>
+        		<tr>
+					<td>Active</td>
+					<td><h:selectOneMenu disabled="#{employeeBean.normalMode}" value="#{employeeBean.employee.active}" style="width:200px;">
+							<f:selectItems value="#{employeeBean.employeeActiveStates}" />
+						</h:selectOneMenu>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Reminder Enable</td>
+					<td><h:selectOneMenu disabled="#{employeeBean.normalMode}" 
+						value="#{employeeBean.employee.reminderEnable}" style="width:200px;">
+							<f:selectItem itemValue="TRUE" itemLabel="Yes" />	
+							<f:selectItem itemValue="FALSE" itemLabel="No" />
+						</h:selectOneMenu>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Employee Reference</td>
+					<td><h:inputText disabled="#{employeeBean.normalMode}"
+							id="employeeRef" value="#{employeeBean.employee.employeeRef}"
+							style="width:200px;font-size:13px;" /></td>
+					<td></td>
+				</tr>
+        	</table>
+        </td>
+        <td>
+        <table style="margin-left: 30px;">
+			<tr>
+				<td><h:outputText value="Projects" rendered="#{employeeBean.editMode}"/></td>
+				<td style="text-align: right;">
+				
+					<h:selectOneMenu rendered="#{employeeBean.editMode}"
+						id="selectProject" value="#{employeeBean.projectId}"
+						style="width:200px;"
+						disabled="#{employeeBean.normalMode || employeeBean.newMode}">
+						<f:selectItems value="#{employeeBean.projectNames}" />
+					</h:selectOneMenu></td>
+				<td><h:commandLink id="addProject"
+						rendered="#{employeeBean.editMode}" >
+						<h:graphicImage value="../images/addProjectButton.png" />
+						<f:ajax event="click" listener="#{employeeBean.addProjectToEmployee}" execute="@form" onevent="showLoadingIndicatorAddingProject" />
+					</h:commandLink></td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<br/><br/>
+					<a4j:outputPanel id="projectTableoutputPanel">
+					<h:dataTable value="#{employeeBean.projectrows}" var="projectRow" rendered="#{not empty employeeBean.projectrows}"
+						id="projectTable"
+						style="width:500px;cellpadding:5px;border:1px solid #CCCCCC;"
+						headerClass="projectTableHeader">
+						<h:column style="text-align: center;">
+							<f:facet name="header">
+								<div style="text-align: center;">Project Name</div>
+							</f:facet>
+							<h:outputText value="#{projectRow.projectName}" />
+						</h:column>
+						<h:column style="text-align: center;">
+							<f:facet name="header">
+								<div style="text-align: center;">Project Description</div>
+							</f:facet>
+							<h:outputText value="#{projectRow.projectDesc}" />
+						</h:column>
+						<h:column style="text-align: center;">
+							<f:facet name="header">
+								<div style="text-align: center;">Client Name</div>
+							</f:facet>
+							<h:outputText value="#{projectRow.client.clientName}" />
+						</h:column>
+						<h:column style="text-align: center;">
+							<f:facet name="header">
+							</f:facet>
+							<h:commandLink rendered="#{!employeeBean.normalMode}"
+								id="removeProject" title="Remove Project"
+								render="projectTable"
+								action="#{employeeBean.removeProjectForEmployee(projectRow)}">
+								<h:graphicImage value="../images/delete.png" />
+							</h:commandLink>
+						</h:column>
+					</h:dataTable>
+					</a4j:outputPanel>
+				</td>
+			</tr>
+		</table>
+			
+		</td>
+		</tr>
+		</table>
+	</h:form>
+	<rich:popupPanel modal="true" id="waitPanel" style="text-align:center;">
+			<h:graphicImage value="../images/ajax-loader.gif" />
+	</rich:popupPanel>
+ </ui:define>
+</ui:composition>

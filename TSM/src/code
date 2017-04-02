@@ -1,0 +1,29 @@
+/*Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		
+		startDate.set(2012, 0, 2, 0, 0, 0);
+		endDate.set(2012, 0, 8, 23, 59, 59);
+		
+		for(int i=0;i<560;i++){
+			Period period = new Period();
+			period.setDateFrom(startDate.getTime());
+			period.setDateTo(endDate.getTime());
+			
+			periodDAO.save(period);
+			startDate.add(Calendar.DATE, 7);
+			endDate.add(Calendar.DATE, 7);
+		}*/
+/*private void validateComments(UITimesheetRow uiTimesheetRow) {
+		if(! uiTimesheetRow.isErrorsPresent() && uiTimesheetRow.getComments()!=null){
+			if(uiTimesheetRow.getComments().length() > 300){
+				uiTimesheetRow.setErrorMessage("Comments length Limit(300)");
+				uiTimesheetRow.setErrorsPresent(true);
+			}else	uiTimesheetRow.setErrorsPresent(false);
+		}
+	}*/
+	/*public void bringClient(UITimesheetRow uiTimesheetRow){
+		Project project = (Project) projectDAO.findProject(ProjectDAO.PROJECT_DESC, uiTimesheetRow.getProjectDesc());
+		Client client = clientDAO.findById(project.getClient().getClientId());
+		uiTimesheetRow.setClientName(client.getClientName());
+		hideCommentsDescDiv();
+	}*/

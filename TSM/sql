@@ -1,0 +1,12 @@
+select * from employee
+
+select * from 
+
+update employee set emp_role_id=2 where emp_id=9
+
+
+<h:commandLink disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}">
+	<h:graphicImage value="../images/refresh.png" />
+	<f:ajax event="click" listener="#{overTimeBean.calculateTotal(timesheetRow)}" execute="@form"
+		onevent="showLoadingIndicator"/>
+</h:commandLink>

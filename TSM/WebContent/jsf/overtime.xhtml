@@ -1,0 +1,312 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/timesheetTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:ui="http://java.sun.com/jsf/facelets" 
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+	
+	<ui:define name="script">
+		<h:outputScript name="jquery.js" />
+		<script type="text/javascript">
+			window.CKEDITOR_BASEPATH = '#{request.contextPath}/org.richfaces.resources/javax.faces.resource/org.richfaces.ckeditor/';
+			
+			$(document).ready(function() {
+				$("#waitPanel").css("visibility", "visible");
+				$("#waitPanel").css("display", "none");
+
+				//alert($(element).html());
+				
+				/* $('.descriptionDiv').hover(function() {
+					mouse_is_inside_description = true;
+				}, function() {
+					mouse_is_inside_description = false;
+				});
+				
+				$("body").mousedown(function() {
+					if (!mouse_is_inside_description)
+						$('.descriptionDiv').css('display','none');
+				}); */
+				/* var mouse_is_inside_comments = false;
+				alert(mouse_is_inside_comments);
+				$('.commentsDiv').hover(function() {
+					alert("true " + mouse_is_inside_comments);
+					mouse_is_inside_comments = true;
+				}, function() {
+					alert("false " + mouse_is_inside_comments);
+					mouse_is_inside_comments = false;
+				});
+				$("body").mouseup(function() {
+					if (!mouse_is_inside_comments){
+						$('.commentsDiv').css('display','none');
+					}
+				}); */
+			});
+			function hideDescriptionDiv(){
+				$('.descriptionDiv').css('display','none');
+			}
+			function hideCommentsDiv(){
+				$('.commentsDiv').css('display','none');
+			}
+			function showLoadingIndicator(data) {
+			   	showIndicatorRegion(data, "waitPanel");
+			   	//alert(data.status);
+			}
+			function showIndicatorRegion(data, regionId) {
+			  if (data.status == "begin") {
+					$("#waitPanel").css("display", "block");
+			  } else if (data.status == "success") {
+					rendertimesheetTableoutputPanel();
+					/*var elements = document.getElementsByTagName('iframe');
+			alert(elements.length);
+					for(var i=0; i&lt;elements.length;i++){
+						var iframeBody = $(elements[i]).contents().find("body");
+						var paragraphs = $(iframeBody).find('p');
+						
+			//alert(paragraphs.length);
+						var innerHTML = '';
+						for(var j=0; j&lt;paragraphs.length;j++){
+			//alert($(paragraphs[j]).html());
+							var imageElements = $(paragraphs[j]).find('img');
+							if(imageElements.length &gt; 0){
+			//alert('present');
+							}else{
+								innerHTML = innerHTML + $(paragraphs[j]).html();
+							}
+						}
+			//alert(innerHTML);
+						iframeBody.innerHTML = innerHTML;
+					}*/
+					$("#waitPanel").css("display", "none");
+			  }
+			}
+			function confirmAllTasks(){
+				if(confirm("Do you want to save all tasks ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function editAllTasks(){
+				if(confirm("Do you want to edit all tasks ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+			function deleteTask(){
+				if(confirm("Do you want to delete task ?") == true){
+					 return true;
+				}else{
+					return false;
+				}
+			}
+		</script>
+	</ui:define>
+	<ui:define name="content">
+		<br />
+		<h:form id="overimesheetFormID">
+		<a4j:jsFunction name="rendertimesheetTableoutputPanel" render="timesheetTableoutputPanel" ></a4j:jsFunction>
+		<h:panelGroup id="timesheetTableoutputPanel" >
+		<a4j:outputPanel>
+			<table style="width:1250px;">
+				<tr style="border: none;">
+					<td style="text-align: justify;font-weight:bold;">Period</td>
+					<td style="text-align: justify;">
+						<h:selectOneMenu id="selectperiod" value="#{overTimeBean.periodName}" style="width:200px;margin-left:20px;" >
+							<f:selectItems value="#{overTimeBean.periodNames}" />
+							<f:ajax event="change" listener="#{overTimeBean.fetchTimesheets}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:selectOneMenu>
+					</td>
+					<td style="text-align: justify;">
+						<a4j:outputPanel rendered="#{overTimeBean.displayOTCheckBox}">
+							<div style="padding: 5px;border: 1px solid #CCCCCC;width: 670px;font-size: 11.5px;color: black;">
+						<b><u>Important:</u></b><br/>
+						<div style="margin-left: 15px;">
+			<ul  style="list-style: disc;"><li>All OT hours should have a valid reason and should either be requested by client or Management.</li>
+			<li>OT will commence only after completion of your regular daily hours.</li>
+			<li>Please use the check-box next to the total hours to flag any work done on a Weekend or Public Holiday so that the entire time will be considered as overtime.</li>
+					</ul></div></div>
+						</a4j:outputPanel>
+					</td>
+					<td  style="font-weight: bold;text-align: right;">
+						<h:commandLink id="addtask" rendered="#{overTimeBean.addTaskStatus}">
+							<h:graphicImage value="../images/addtask.png" />
+							<f:ajax event="click" listener="#{overTimeBean.addTask}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink id="editall"  style="margin-left:10px;" rendered="#{overTimeBean.addTaskStatus}" 
+							onclick="return editAllTasks();"
+							action="#{overTimeBean.editAllTask}" >
+							<h:graphicImage value="../images/editall.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:commandLink id="confirm"  style="margin-left:10px;" rendered="#{overTimeBean.addTaskStatus}" 
+							onclick="return confirmAllTasks();"
+							action="#{overTimeBean.confirmAllTask('OT')}" >
+							<h:graphicImage value="../images/confirmAll.png" />
+							<f:ajax execute="@form"	onevent="showLoadingIndicator"/>
+						</h:commandLink>
+					</td>
+				</tr>
+			</table>
+			<br/>
+			<a4j:outputPanel rendered="#{(not empty overTimeBean.timesheetrows) and overTimeBean.displayOTCheckBox}" 
+				style="font-size:11px;color:red;float:right;">
+			* Please select check-box during Public Holiday</a4j:outputPanel><br/>
+			<h:dataTable value="#{overTimeBean.timesheetrows}" var="timesheetRow" id="timesheetTable"
+				rendered="#{not empty overTimeBean.timesheetrows}"
+				style="width:1250px;cellpadding:5px;border:1px solid #CCCCCC;" headerClass="timesheetTableHeader" 
+				columnClasses="timesheetProj,timesheetDesc,timesheetSTime,timesheetETime,timesheetTotal,timesheetCS,timesheetAS,timesheetOP" >
+				<h:column style="text-align: center;" width="40px">
+					 <f:facet name="header" >
+					 	<div style="text-align: center;">Project</div>
+					</f:facet>
+					<h:selectOneMenu  disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}" id="selectproject" value="#{timesheetRow.projectId}" style="width:200px;">
+						<f:selectItems value="#{overTimeBean.projectNames}" />
+						<f:ajax event="change" listener="#{overTimeBean.updateTotal(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+					</h:selectOneMenu>
+				</h:column>
+				<!-- <h:column style="text-align: center;" width="60px">
+					 <f:facet name="header" width="60px">
+					 	<div style="text-align: center;">Comments</div>
+					</f:facet>
+					<a4j:outputPanel id="commentsPanel" >
+						<h:commandLink id="commentsLink" value="Comments" rendered="#{timesheetRow.editMode}">
+							<f:ajax event="click" listener="#{overTimeBean.showComments(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:outputText value="#{timesheetRow.shortComments}" rendered="#{!timesheetRow.editMode}" title="#{timesheetRow.comments}"/>
+						<div id="commentsDiv" class="commentsDiv" style="display: #{timesheetRow.commentsDisplay};">
+							<a id="closeCommentsLink" onclick="hideCommentsDiv();" style="cursor:pointer;position:absolute;margin-left:480px;">
+								<img src="../images/close.png" />
+							</a>
+							<h:inputTextarea style="min-height:100px;min-width:500px;max-width:500px; " disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}" value="#{timesheetRow.comments}">
+							</h:inputTextarea>
+						</div>		
+					</a4j:outputPanel>
+				</h:column> -->
+				<h:column style="text-align: left !important;"  width="60px">
+					<f:facet name="header">
+					 	<div style="text-align: center;">Reason</div>
+					</f:facet>
+					<a4j:outputPanel id="descPanel" >
+						<h:commandLink id="descriptionLink" value="Reason For Overtime" rendered="#{timesheetRow.editMode}" title="#{timesheetRow.taskDesc}">
+							<f:ajax event="click" listener="#{overTimeBean.showDescription(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<h:outputText value="#{timesheetRow.shortDesc}" rendered="#{!timesheetRow.editMode}" title="#{timesheetRow.taskDesc}"/>
+						<div id="descriptionDiv" class="descriptionDiv" style="display: #{timesheetRow.display};">
+							<a id="closeLink" onclick="hideDescriptionDiv();">
+								<img src="../images/close.png" />
+							</a>
+							<h:inputTextarea style="min-height:200px;min-width:700px;max-width:700px; " disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}" value="#{timesheetRow.taskDesc}">
+							</h:inputTextarea>
+						</div>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Start Time</div>
+					</f:facet>
+					<a4j:outputPanel id="fromTaskdatePanel" >
+						<rich:calendar disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}"
+							value="#{timesheetRow.startTime}" id="fromTaskdate"
+							datePattern="dd-MMM-yyyy HH:mm"  dataModel="#{overTimeBean.calendarModel}" locale="US"
+							defaultTime="#{timesheetRow.taskDate}" mode="ajax"	showFooter="true" >
+							<f:ajax event="change" listener="#{overTimeBean.changeTaskDate(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</rich:calendar>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">End Time</div>
+					</f:facet>
+					<a4j:outputPanel id="toTaskdatePanel" >
+						<rich:calendar disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}"
+							value="#{timesheetRow.endTime}" id="toTaskdate"
+							datePattern="dd-MMM-yyyy HH:mm"  dataModel="#{overTimeBean.calendarModel}"
+							defaultTime="#{timesheetRow.taskDate}" mode="ajax" showFooter="true" >
+							<f:ajax event="change" listener="#{overTimeBean.updateTotal(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</rich:calendar>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" width="30px">
+					 <f:facet name="header">
+					 	<div>Total(hours)</div>
+					</f:facet>
+					<h:panelGrid id="totalPanel" columns="3" border="0" style="text-align:center;">
+						<h:inputText value="#{timesheetRow.total}" style="margin-left:10px;width:35px;text-align:right;" 
+							disabled="true"></h:inputText>
+						<h:selectBooleanCheckbox value="#{timesheetRow.publicHoliday}" title="Public Holiday" 
+							style="margin-left:10px;" disabled="#{!((overTimeBean.addTaskStatus) and (timesheetRow.editMode))}"
+							rendered="#{overTimeBean.displayOTCheckBox}">
+							<f:ajax event="click" listener="#{overTimeBean.updateTotal(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+						</h:selectBooleanCheckbox>
+						<a4j:outputPanel style="font-size:12px;color:red;" 
+							rendered="#{overTimeBean.displayOTCheckBox}">*
+						</a4j:outputPanel>
+					</h:panelGrid>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Status</div>
+					</f:facet>
+					<a4j:outputPanel>
+						<h:graphicImage value="#{timesheetRow.confirmStatus eq 'Confirmed' ? '../images/confirmed.png' : '../images/notconfirm.png'}" title="#{timesheetRow.confirmStatus}" />
+						<a4j:outputPanel rendered="#{timesheetRow.newTask}">
+							<br/><h:outputText value="New Task" style="font-weight:bold;color:green;"/>
+						</a4j:outputPanel>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align: center;" >
+					 <f:facet name="header">
+					 	<div style="text-align: center;">Mngr Status</div>
+					</f:facet>
+					<a4j:outputPanel>
+						<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="#{timesheetRow.approveStatus}" rendered="#{!overTimeBean.adminMode}"/>
+						<h:commandLink rendered="#{timesheetRow.showApproveLink}" >
+							<f:ajax event="click" listener="#{overTimeBean.approveTask(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+								<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="Click to Approve" />
+						</h:commandLink>
+						<h:commandLink rendered="#{timesheetRow.showDenyLink}" >
+							<f:ajax event="click" listener="#{overTimeBean.denyTask(timesheetRow)}" execute="@form"
+								onevent="showLoadingIndicator"/>
+								<h:graphicImage value="#{timesheetRow.approveStatus eq 'Approved' ? '../images/app.png' : '../images/notapp.png'}" title="Click to Deny" />
+						</h:commandLink>
+					</a4j:outputPanel>
+				</h:column>
+				<h:column style="text-align:center;" >
+					<f:facet name="header">
+						<div style="text-align: center;">Operations</div>
+					</f:facet>
+					<a4j:outputPanel id="operationsPanel" >
+						<h:commandLink title="Delete" rendered="#{(overTimeBean.addTaskStatus) and (timesheetRow.deleteStatus)}" onclick="return deleteTask();"
+							action="#{overTimeBean.deleteTask(timesheetRow)}" >
+							<h:graphicImage value="../images/delete.png" />
+							<f:ajax execute="@form" onevent="showLoadingIndicator"/>
+						</h:commandLink>
+						<a4j:outputPanel rendered="#{timesheetRow.errorsPresent}">
+							<br/>
+							<h:outputText value="#{timesheetRow.errorMessage}" style="color:red;font-size:10px;"></h:outputText>
+						</a4j:outputPanel>
+					</a4j:outputPanel>
+				</h:column>
+			</h:dataTable>
+			</a4j:outputPanel>
+			</h:panelGroup>
+		</h:form>
+		<rich:popupPanel modal="true" id="waitPanel" style="text-align:center;">
+			<h:graphicImage value="../images/ajax-loader.gif" />
+		</rich:popupPanel>
+	</ui:define>
+</ui:composition>

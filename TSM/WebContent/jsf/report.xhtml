@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/mainTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:s="http://jboss.com/products/seam/taglib">
+
+	<ui:define name="content">
+		<br />
+		<br />
+		<br />
+		<h:form id="reportFormID">
+			<a4j:jsFunction name="renderReportForm" render="reportFormOutputPanel" ></a4j:jsFunction>
+			<a4j:jsFunction name="setEmployee" action="#{reportBean.fetchEmployee(0)}" ></a4j:jsFunction>
+			<h:panelGroup id="reportFormOutputPanel">
+				<a4j:outputPanel>
+					<a4j:outputPanel id="searchPanel">
+						<table style="width: 1200px;">
+							<tr style="border: none;">
+								<td style="text-align: justify;">
+									<table>
+										<tr>
+											<td style="text-align: justify; font-weight: bold;">Employee Name</td>
+										</tr>
+										<tr>
+											<td>
+												<a4j:outputPanel id="employeeNamePanel">
+													<rich:autocomplete value="#{reportBean.employeeName}"
+														autocompleteMethod="#{reportBean.autocomplete}"
+														mode="ajax" minChars="1" var="employee"
+														fetchValue="#{employee.empFirstName} #{employee.empLastName}  -  #{employee.empId}"
+														layout="table" requestDelay="600"
+														nothingLabel="No Employee found">
+														<rich:column>
+															<h:outputText value="#{employee.empFirstName} #{employee.empLastName} ---- #{employee.empId}" />
+														</rich:column>
+														<f:ajax event="selectitem" execute="@form" onevent="setEmployee" />
+													</rich:autocomplete>
+												</a4j:outputPanel>
+											</td>
+										</tr>
+									</table>
+								</td>
+								<td style="text-align: justify;">
+									<table>
+										<tr>
+											<td style="text-align: justify; font-weight: bold;">Client Name</td>
+										</tr>
+										<tr>
+											<td>
+												<a4j:outputPanel id="clientNamePanel">
+													<h:selectOneMenu value="#{reportBean.clientId}"
+														style="width:150px;">
+														<f:selectItems value="#{reportBean.clientNames}" />
+													</h:selectOneMenu>
+												</a4j:outputPanel>
+											</td>
+										</tr>
+									</table>
+								</td>
+								<td style="text-align: justify;">
+									<table>
+										<tr>
+											<td style="text-align: justify; font-weight: bold;">Date Start</td>
+										</tr>
+										<tr>
+											<td>
+												<a4j:outputPanel id="startDatePanel">
+														<rich:calendar value="#{reportBean.startDate}"
+															id="startDate" datePattern="MMM-d-yyyy"
+															style="width:80px;" showFooter="false">
+														</rich:calendar>
+												</a4j:outputPanel>
+											</td>
+										</tr>
+									</table>
+								</td>
+								<td style="text-align: justify;">
+									<table>
+										<tr>
+											<td style="text-align: justify; font-weight: bold;">Date End</td>
+										</tr>
+										<tr>
+											<td>
+												<a4j:outputPanel id="endDatePanel">
+													<rich:calendar value="#{reportBean.endDate}" id="endDate"
+														datePattern="MMM-d-yyyy" style="width:80px;"
+														showFooter="false">
+													</rich:calendar>
+												</a4j:outputPanel>
+											</td>
+										</tr>
+									</table>
+								</td>
+								<td style="text-align: justify;">
+									<table>
+										<tr>
+											<td>
+												<h:selectBooleanCheckbox value="#{reportBean.generateRegularReport}" />
+												<b>REGULAR</b>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<h:selectBooleanCheckbox value="#{reportBean.generateOvertimeReport}" />
+												<b>OVERTIME</b>
+											</td>
+										</tr>
+									</table>
+								</td>
+								<td style="text-align: justify;">
+									<table>
+										<tr><td>
+												<a4j:outputPanel rendered="#{reportBean.errorsPresent}">
+													<h:outputText value="#{reportBean.errorMessage}" style="color:red;font-size:10px;"></h:outputText>
+												</a4j:outputPanel>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<h:commandLink style="margin-right:5px;" action="#{reportBean.generateReport}" >
+													<h:graphicImage value="../images/report.png" />
+												</h:commandLink>
+												<h:commandLink>
+													<h:graphicImage value="../images/clear.png" />
+													<f:ajax event="click" listener="#{reportBean.reset}" execute="@form" onevent="renderReportForm" />
+												</h:commandLink>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</a4j:outputPanel>
+				</a4j:outputPanel>
+			</h:panelGroup>
+		</h:form>
+	</ui:define>
+</ui:composition>

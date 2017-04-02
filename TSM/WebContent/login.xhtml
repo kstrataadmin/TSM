@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:r="http://richfaces.org/rich" xmlns:a="http://richfaces.org/a4j">
+<h:head>
+<title>Kstrata IT Solutions</title>
+<link rel="stylesheet" href="css/style.css"/>
+</h:head>
+<f:view >
+<h:body>
+	<header>
+	<div class="systemnav"></div>
+	<div class="mainnav">
+		<div class="logo">
+			<a href="#"></a>
+		</div>
+		<div class="menu"></div>
+	</div>
+	<div class="shadow"></div>
+	</header>
+	<h:form id="loginFormID" autocomplete="off">
+		<div id="container">
+			<div id="main">
+				<div class="login">
+					<a:outputPanel styleClass="field">
+						<label><h:outputText value="Username" /></label>
+						<h:inputText id="username" value="#{loginBean.username}" style="border:1px solid #CCCCCC"/>
+					</a:outputPanel>
+					<a:outputPanel styleClass="field">
+						<label><h:outputText value="Password" /></label>
+						<h:inputSecret id="password" value="#{loginBean.password}" style="border:1px solid #CCCCCC"
+					onkeypress="if (event.keyCode == 13) { document.getElementById('loginFormID:login').click(); return false; }"/> 
+					</a:outputPanel>
+					<a:outputPanel styleClass="field" rendered="#{loginBean.changePasswordFlag}">
+						<label><h:outputText value="Enter New Password" /></label>
+						<h:inputSecret id="newpassword" value="#{loginBean.newpassword}" style="border:1px solid #CCCCCC" /> 
+					</a:outputPanel>
+					<a:outputPanel styleClass="field" rendered="#{loginBean.changePasswordFlag}">
+						<label><h:outputText value="Re-Type New Password" /></label>
+						<h:inputSecret id="retypepassword" value="#{loginBean.retypepassword}" style="border:1px solid #CCCCCC" 
+						onkeypress="if (event.keyCode == 13) { document.getElementById('loginFormID:clogin').click(); return false; }"/> 
+					</a:outputPanel>
+					<div class="field actions">
+						<h:commandLink action="#{loginBean.forgotPassword}" id="forgot" value="Forgot Password" style="float:left;"/>
+						<h:commandLink action="#{loginBean.login}" id="login" value="Login" rendered="#{!loginBean.changePasswordFlag}"/>
+						<h:commandLink action="#{loginBean.changePasswordAndLogin}" id="clogin" value="Login" rendered="#{loginBean.changePasswordFlag}"/>
+					</div>
+					
+					<h:messages style="color:red;"/>
+				</div>
+			</div>
+		</div>
+	</h:form>
+</h:body>
+</f:view>
+</html>

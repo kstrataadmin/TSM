@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	<context:component-scan base-package="com.kstrata.apps.tsm.business" />
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>  
+	
+	<bean id="baseDao" class="com.kstrata.apps.tsm.business.dao.hibernate.BaseDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />	
+	</bean>
+	
+	<bean id="clientDAO" class="com.kstrata.apps.tsm.business.dao.ClientDAOImpl" parent="baseDao">
+	</bean>	
+	
+	<bean id="employeeDAO" class="com.kstrata.apps.tsm.business.dao.EmployeeDAOImpl" parent="baseDao">
+	</bean>	
+	
+	<bean id="employeeProjectDAO" class="com.kstrata.apps.tsm.business.dao.EmployeeProjectDAOImpl" parent="baseDao">
+	</bean>	
+	<bean id="keyDAO" class="com.kstrata.apps.tsm.business.dao.KeyDAOImpl" parent="baseDao">
+	</bean>	
+	<bean id="periodDAO" class="com.kstrata.apps.tsm.business.dao.PeriodDAOImpl" parent="baseDao">
+	</bean>	
+	<bean id="projectDAO" class="com.kstrata.apps.tsm.business.dao.ProjectDAOImpl" parent="baseDao">
+	</bean>	
+	<bean id="roleDAO" class="com.kstrata.apps.tsm.business.dao.RoleDAOImpl" parent="baseDao">
+	</bean>	
+	<bean id="timesheetDAO" class="com.kstrata.apps.tsm.business.dao.TimesheetDAOImpl" parent="baseDao">
+	</bean>
+	
+	<bean id="keyService" class="com.kstrata.apps.tsm.business.service.KeyServiceImpl" >
+		<property name="keyDAO" ref="keyDAO"></property>
+	</bean>
+	
+	<bean id="encryptAndDecrypt" class="com.kstrata.apps.tsm.business.dao.util.EncryptAndDecrypt">
+		<constructor-arg ref="keyService"></constructor-arg>
+	</bean>
+	
+	<bean id="timesheetReminder"  class="com.kstrata.apps.tsm.business.job.TimesheetReminder" />
+	
+	<bean id="jobDetailBean" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value=" com.kstrata.apps.tsm.business.job.TimesheetReminderJob"></property>
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="timesheetReminder" value-ref="timesheetReminder" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="jobDetailBean" />
+		<property name="cronExpression" value="0 0 9,12,15,17 ? * MON-FRI" />
+	</bean>
+
+	<bean id="schduleFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+		<property name="overwriteExistingJobs" value="true" />
+	</bean>
+   	
+	<!-- <bean id="timesheetDAO" class="com.kstrata.apps.tsm.business.dao.TimesheetDAO"></bean>
+	<bean id="employeeDAO" class="com.kstrata.apps.tsm.business.dao.EmployeeDAO"></bean>
+	<bean id="roleDAO" class="com.kstrata.apps.tsm.business.dao.RoleDAO"></bean>
+	<bean id="employeeProjectDAO" class="com.kstrata.apps.tsm.business.dao.EmployeeProjectDAO"></bean>
+	<bean id="periodDAO" class="com.kstrata.apps.tsm.business.dao.PeriodDAO"></bean>
+	<bean id="clientDAO" class="com.kstrata.apps.tsm.business.dao.ClientDAO"></bean>
+	<bean id="projectDAO" class="com.kstrata.apps.tsm.business.dao.ProjectDAO">
+		<property name="clientDAO" ref="clientDAO"/>
+	</bean> -->
+	
+	<!-- <bean id="loginBean" class="com.kstrata.apps.tsm.business.uibeans.LoginBean" scope="session"  init-method="init">
+		<property name="employeeDAO" ref="employeeDAO"/>
+		<property name="roleDAO" ref="roleDAO"/>
+	</bean> -->
+	<!-- <bean id="mainTemplateBean" class="com.kstrata.apps.tsm.business.uibeans.MainTemplateBean" scope="session"></bean>
+	<bean id="timesheetTemplateBean" class="com.kstrata.apps.tsm.business.uibeans.TimesheetTemplateBean" scope="session"></bean>
+	<bean id="timesheetBean" class="com.kstrata.apps.tsm.business.uibeans.TimesheetBean" scope="session" init-method="init" >
+		<property name="employeeProjectDAO" ref="employeeProjectDAO"/>
+		<property name="timesheetDAO" ref="timesheetDAO"/>
+		<property name="employeeDAO" ref="employeeDAO"/>
+		<property name="periodDAO" ref="periodDAO"/>
+		<property name="projectDAO" ref="projectDAO"/>
+		<property name="clientDAO" ref="clientDAO"/>		
+	</bean>
+	<bean id="summaryBean" class="com.kstrata.apps.tsm.business.uibeans.SummaryBean" scope="session"  init-method="init">
+		<property name="timesheetDAO" ref="timesheetDAO"/>
+		<property name="periodDAO" ref="periodDAO"/>
+		<property name="employeeDAO" ref="employeeDAO"/>
+		<property name="employeeProjectDAO" ref="employeeProjectDAO"/>
+	</bean>
+	<bean id="projectBean" class="com.kstrata.apps.tsm.business.uibeans.ProjectBean" scope="session"  init-method="init">
+		<property name="projectDAO" ref="projectDAO"/>
+		<property name="clientDAO" ref="clientDAO"/>
+	</bean>
+	<bean id="employeeBean" class="com.kstrata.apps.tsm.business.uibeans.EmployeeBean" scope="session"  init-method="init">
+		<property name="employeeProjectDAO" ref="employeeProjectDAO"/>
+		<property name="employeeDAO" ref="employeeDAO"/>
+		<property name="projectDAO" ref="projectDAO"/>
+		<property name="clientDAO" ref="clientDAO"/>
+	</bean> -->
+</beans>
